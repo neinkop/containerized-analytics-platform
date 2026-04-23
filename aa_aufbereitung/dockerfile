@@ -1,0 +1,22 @@
+FROM python:3.11-buster
+
+# Basis-Einstellungen
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Dependencies installieren (falls vorhanden)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt || true
+
+HEALTHCHECK CMD curl --fail http://localhost:8080/columns
+
+# Restlichen Code kopieren
+COPY . .
+
+# Port, auf dem dein Script lauscht (anpassbar)
+EXPOSE 8080
+
+# Startbefehl
+CMD ["python", "main.py"]

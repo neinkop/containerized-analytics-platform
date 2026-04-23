@@ -1,0 +1,7 @@
+pandas
+Flask
+waitress
+scikit-learn
+pyarrow
+fastparquet
+holidays
