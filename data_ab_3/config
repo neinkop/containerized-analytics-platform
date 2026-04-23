@@ -1,0 +1,6 @@
+log_level=DEBUG
+#DEBUG;INFO;ERROR;NONE
+test=true
+#TRUE;FALSE
+test_rows=20000
+test_rowgroups=5

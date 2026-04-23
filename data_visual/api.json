@@ -1,0 +1,11 @@
+{"aa_api_default": {
+        "base_url": "http://127.0.0.1:8090/data",
+        "summary_url": "http://127.0.0.1:8090/data_summary",
+        "default": "True"
+    },
+    "aa_api_forecast": {
+        "base_url": "http://host.docker.internal:9000/data",
+        "summary_url": "http://host.docker.internal:9000/data_summary",
+        "default": "False"
+    }
+}

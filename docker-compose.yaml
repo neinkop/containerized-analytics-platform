@@ -1,0 +1,99 @@
+networks:
+  backend:
+services:
+  aa_aufbereitung_1:
+    build:
+      context: ./aa_aufbereitung
+      dockerfile: dockerfile
+    container_name: aa_aufbereitung_1
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data_ab_1:/app/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+    mem_limit: 6g
+  
+  aa_aufbereitung_2:
+    build:
+      context: ./aa_aufbereitung
+      dockerfile: dockerfile
+    container_name: aa_aufbereitung_2
+    depends_on:
+      - aa_aufbereitung_1
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./data_ab_2:/app/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+    mem_limit: 4g
+  aa_aufbereitung_3:
+    build:
+      context: ./aa_aufbereitung
+      dockerfile: dockerfile
+    container_name: aa_aufbereitung_3
+    depends_on:
+      aa_aufbereitung_1:
+        condition: service_healthy
+      aa_aufbereitung_2:
+        condition: service_healthy
+    ports:
+      - "8082:8080"
+    volumes:
+      - ./data_ab_3:/app/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+    mem_limit: 8g
+
+  aa_api:
+    build:
+      context: ./aa_api
+      dockerfile: dockerfile
+    container_name: aa_api
+    depends_on:
+      aa_aufbereitung_1:
+        condition: service_healthy
+      aa_aufbereitung_2:
+        condition: service_healthy
+      aa_aufbereitung_3:
+        condition: service_healthy
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./data_api_1:/app/data
+    networks:
+      - backend
+    mem_limit: 8g
+
+  # aa_visual:
+  #   build:
+  #     context: ./aa_visual
+  #     dockerfile: dockerfile
+  #   container_name: aa_visual
+  #   depends_on:
+  #     - aa_api
+  #   ports:
+  #     - "8100:8501"
+  #   volumes:
+  #     - ./data_visual:/app/data
+    
+  #   network_mode: "host"  
+  #   # environment:
+  #   #   AA_API_URL: "http://aa_api:8001"
+  #   mem_limit: 4g
