@@ -102,6 +102,16 @@ ratecode_map = {
     99: "Unknown"
 }
 
+weekday_map = {
+    0: "Montag",
+    1: "Dienstag",
+    2: "Mittwoch",
+    3: "Donnerstag",
+    4: "Freitag",
+    5: "Samstag",
+    6: "Sonntag"
+}
+
 # ============================================
 # API LOGIK (SMART)
 # ============================================
@@ -516,6 +526,13 @@ for metric, df in dfs.items():
             pd.to_numeric(df["RatecodeID"], errors="coerce")
             .map(ratecode_map)
             .fillna(df["RatecodeID"])
+        )
+
+    if "weekday" in df.columns:
+        df["weekday"] = (
+            pd.to_numeric(df["weekday"], errors="coerce")
+            .map(weekday_map)
+            .fillna(df["weekday"])
         )
 
     # ============================================
