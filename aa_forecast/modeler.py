@@ -66,44 +66,28 @@ class modeler:
         print(f"Final dimensions for modeling: {dimensions}")
         #if target in dimensions: dimensions = dimensions.remove(target)
         self.lh.debug(f"Anfrage - Method: {method}, Dimensions: {dimensions}, Target: {target} (year: {year}, month: {month}, day: {day})")
-        df_agg = (
-            df.groupby(dimensions)
-            .agg(**{target: (target, method)})
-            .reset_index()
-        )
-        df_agg = df_agg.replace([np.inf, -np.inf], np.nan).dropna()
 
-        # Normalisierung für count: Trainingsdaten umfassen mehrere Jahre/Monate,
-        # der groupby kumuliert alle Perioden → durch Anzahl relevanter Perioden teilen,
-        # damit die Vorhersage mit einem einzelnen Jahr/Monat vergleichbar ist.
-        if method == "count":
-            if day and month:
-                # Tag-Ebene: wie viele Jahre haben Daten für genau diesen Monat+Tag?
-                n_periods = (
-                    df[
-                        (df["pickup_month"] == int(month)) &
-                        (df["pickup_day"]   == int(day))
-                    ]["pickup_year"].nunique()
-                    if "pickup_month" in df.columns and "pickup_day" in df.columns
-                    else 1
-                )
-            elif month:
-                # Monats-Ebene: wie viele Jahre haben Daten für diesen Monat?
-                n_periods = (
-                    df[df["pickup_month"] == int(month)]["pickup_year"].nunique()
-                    if "pickup_month" in df.columns
-                    else 1
-                )
-            else:
-                # Jahres-Ebene: wie viele Jahre im Trainingsdatensatz?
-                n_periods = (
-                    df["pickup_year"].nunique()
-                    if "pickup_year" in df.columns
-                    else 1
-                )
-            if n_periods > 1:
-                self.lh.debug(f"Count-Normalisierung: ÷ {n_periods} Zeitperioden")
-                df_agg[target] = df_agg[target] / n_periods
+        # Für count: zweistufige Aggregation → erst pro Jahr zählen, dann über Jahre mitteln.
+        # So ist die Vorhersage direkt mit einem einzelnen Jahr/Monat vergleichbar,
+        # unabhängig davon wie viele Jahre im Trainingsdatensatz sind.
+        if method == "count" and "pickup_year" in df.columns:
+            df_agg = (
+                df.groupby(["pickup_year"] + dimensions)
+                .agg(**{target: (target, "count")})
+                .reset_index()
+                .groupby(dimensions)[target]
+                .mean()
+                .reset_index()
+            )
+            self.lh.info(f"Count-Aggregation: {df['pickup_year'].nunique()} Jahre gemittelt → {len(df_agg)} Gruppen")
+        else:
+            df_agg = (
+                df.groupby(dimensions)
+                .agg(**{target: (target, method)})
+                .reset_index()
+            )
+
+        df_agg = df_agg.replace([np.inf, -np.inf], np.nan).dropna()
 
         # Log-Transformation only for mean (continuous targets)
         use_log = False
