@@ -24,6 +24,8 @@ class data_handler:
         test_rows = self.config.getTestRows() # type: ignore
         
         for entry in self.data_list.readlines():
+            if entry.startswith("#") or not entry.strip():
+                continue
             path = entry.strip()
             try:
                 open(path, "r").close()
