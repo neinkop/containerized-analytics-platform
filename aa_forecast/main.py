@@ -9,13 +9,13 @@ python3 -m pip install statmodels
 python3 -m pip install holidays
 """
 print("Starting Handler import")
-from handler.log_handler import log_handler
-from handler.object_handler import object_handler
 from handler.config_handler import config_handler
+config = config_handler()
+from handler.log_handler import log_handler
+log = log_handler(config.getLogLevel())
+from handler.object_handler import object_handler
 from objects.filter import filter
 
-config = config_handler()
-log = log_handler(config.getLogLevel())
 log.info("Handler imported")
 log.info("Starting Lib import")
 from flask import request # type: ignore
