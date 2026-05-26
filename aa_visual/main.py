@@ -366,7 +366,7 @@ dimensions = st.sidebar.multiselect(
         "store_and_fwd_flag",
         "pickup_year","pickup_month","pickup_day","pickup_hour",
         "dropoff_year","dropoff_month","dropoff_day","dropoff_hour",
-        "is_weekend","season","is_holiday","is_school_holiday","before_holiday","after_holiday","is_rush_hour","is_event"
+        "is_weekend","season","is_holiday","is_school_holiday","before_holiday","after_holiday","is_rush_hour","is_event", "weekday"
         
     ],
     placeholder="Option auswählen"
