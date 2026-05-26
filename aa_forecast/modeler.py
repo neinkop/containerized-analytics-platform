@@ -67,19 +67,65 @@ class modeler:
         #if target in dimensions: dimensions = dimensions.remove(target)
         self.lh.debug(f"Anfrage - Method: {method}, Dimensions: {dimensions}, Target: {target} (year: {year}, month: {month}, day: {day})")
 
-        # Für count: zweistufige Aggregation → erst pro Jahr zählen, dann über Jahre mitteln.
-        # So ist die Vorhersage direkt mit einem einzelnen Jahr/Monat vergleichbar,
-        # unabhängig davon wie viele Jahre im Trainingsdatensatz sind.
-        if method == "count" and "pickup_year" in df.columns:
-            df_agg = (
-                df.groupby(["pickup_year"] + dimensions)
-                .agg(**{target: (target, "count")})
-                .reset_index()
-                .groupby(dimensions)[target]
-                .mean()
-                .reset_index()
-            )
-            self.lh.info(f"Count-Aggregation: {df['pickup_year'].nunique()} Jahre gemittelt → {len(df_agg)} Gruppen")
+        if method == "count":
+            # ----------------------------------------------------------------
+            # COUNT: Vergleichbare Werte herstellen
+            #
+            # Problem: groupby über alle Trainingsjahre kumuliert die Counts.
+            # Lösung:
+            #   1. df auf den angefragten Kalender-Zeitraum filtern
+            #      (nur Januar-Daten für eine Januar-Anfrage etc.)
+            #   2. Zyklische Features (month_sin/cos, dow_sin/cos) aus den
+            #      Dimensions entfernen – sie sind nach dem Filter konstant
+            #      und machen das Modell singulär
+            #   3. Pro Jahr × Dimension zählen, dann über Jahre mitteln
+            #      → Ergebnis ist ein "typischer" Wert für diesen Zeitraum
+            # ----------------------------------------------------------------
+            df_filtered = df.copy()
+            active_dims = list(dimensions)  # eigene Kopie, dimensions bleibt für mean/andere Methoden erhalten
+
+            # Schritt 1 + 2: Filter + konstante Features entfernen
+            if month and "pickup_month" in df_filtered.columns:
+                df_filtered = df_filtered[df_filtered["pickup_month"] == int(month)]
+                active_dims = [d for d in active_dims if d not in ["month_sin", "month_cos", "season"]]
+                print(f"[COUNT] Filtered to month={month}: {len(df_filtered)} rows, dropped month_sin/cos")
+
+            if day and month and "pickup_day" in df_filtered.columns:
+                df_filtered = df_filtered[df_filtered["pickup_day"] == int(day)]
+                active_dims = [d for d in active_dims if d not in ["dow_sin", "dow_cos"]]
+                print(f"[COUNT] Filtered to day={day}: {len(df_filtered)} rows, dropped dow_sin/cos")
+
+            print(f"[COUNT] active_dims for model: {active_dims}")
+            print(f"[COUNT] df columns sample: {list(df_filtered.columns[:8])}")
+            print(f"[COUNT] pickup_year available: {'pickup_year' in df_filtered.columns}")
+
+            # Schritt 3: Pro Jahr zählen, über Jahre mitteln
+            if "pickup_year" in df_filtered.columns and active_dims:
+                n_years = df_filtered["pickup_year"].nunique()
+                print(f"[COUNT] n_years in training data: {n_years}")
+                df_agg = (
+                    df_filtered
+                    .groupby(["pickup_year"] + active_dims)
+                    .agg(**{target: (target, "count")})
+                    .reset_index()
+                    .groupby(active_dims)[target]
+                    .mean()
+                    .reset_index()
+                )
+            else:
+                # Fallback: einfache Aggregation (kein pickup_year vorhanden)
+                n_years = 1
+                df_agg = (
+                    df_filtered.groupby(active_dims)
+                    .agg(**{target: (target, "count")})
+                    .reset_index()
+                ) if active_dims else pd.DataFrame({target: [df_filtered[target].count()]})
+
+            print(f"[COUNT] df_agg shape: {df_agg.shape}, sample:\n{df_agg.head(3)}")
+
+            # active_dims als neue dimensions verwenden (für Formel + pred_df)
+            dimensions = active_dims
+
         else:
             df_agg = (
                 df.groupby(dimensions)
