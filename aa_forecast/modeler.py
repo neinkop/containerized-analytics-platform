@@ -72,6 +72,39 @@ class modeler:
             .reset_index()
         )
         df_agg = df_agg.replace([np.inf, -np.inf], np.nan).dropna()
+
+        # Normalisierung für count: Trainingsdaten umfassen mehrere Jahre/Monate,
+        # der groupby kumuliert alle Perioden → durch Anzahl relevanter Perioden teilen,
+        # damit die Vorhersage mit einem einzelnen Jahr/Monat vergleichbar ist.
+        if method == "count":
+            if day and month:
+                # Tag-Ebene: wie viele Jahre haben Daten für genau diesen Monat+Tag?
+                n_periods = (
+                    df[
+                        (df["pickup_month"] == int(month)) &
+                        (df["pickup_day"]   == int(day))
+                    ]["pickup_year"].nunique()
+                    if "pickup_month" in df.columns and "pickup_day" in df.columns
+                    else 1
+                )
+            elif month:
+                # Monats-Ebene: wie viele Jahre haben Daten für diesen Monat?
+                n_periods = (
+                    df[df["pickup_month"] == int(month)]["pickup_year"].nunique()
+                    if "pickup_month" in df.columns
+                    else 1
+                )
+            else:
+                # Jahres-Ebene: wie viele Jahre im Trainingsdatensatz?
+                n_periods = (
+                    df["pickup_year"].nunique()
+                    if "pickup_year" in df.columns
+                    else 1
+                )
+            if n_periods > 1:
+                self.lh.debug(f"Count-Normalisierung: ÷ {n_periods} Zeitperioden")
+                df_agg[target] = df_agg[target] / n_periods
+
         # Log-Transformation only for mean (continuous targets)
         use_log = False
         if method == "mean":
