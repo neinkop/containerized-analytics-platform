@@ -76,13 +76,6 @@ class data_handler:
             else:
                 pickup_str = pd.Series(["" for _ in range(len(df))], index=df.index)
             
-            df.insert(
-                0,
-                "row_id",
-                str(pickup_str).replace(" ", "")[1:8] + "_" + pd.Series(range(len(df))).astype(str),
-            )
-            
-
             if not "cbd_congestion_fee" in df.columns:
                 df.insert(
                     len(df.columns),
@@ -91,17 +84,13 @@ class data_handler:
                 )
             if not "forecast" in df.columns:
                 df.insert(len(df.columns),"forecast","none")
-            
-            self.dataframes.append(df)
-            #print(df.head(2).to_json(orient="index"))
 
-        df = pd.concat(self.dataframes)
-        #df = self.raw_complete_df
-        
-        #self.raw_complete_df = df
-        
-       # self.raw_complete_
-        df.set_index("row_id", inplace=True)
+            self.dataframes.append(df)
+
+        df = pd.concat(self.dataframes, ignore_index=True)
+
+        df.index = df.index.astype(str)
+        df.index.name = "row_id"
         # Additional time-based features
         #df = self.raw_complete_df
         def cleanup(df):
