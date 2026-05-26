@@ -39,7 +39,7 @@ def show_data(year, month, day):
     print("--")"""
     filters = filter(request.args.get('filter'), request.args.get('aggr'))
     #filters.debug()
-    log.debug(f"Received request for data with year={year}, month={month}, day={day} and filter={filters.getFilterString()} (aggregation: {filters.getAggregationMethod()})")
+    log.debug(f"Received request for data with year={year}, month={month}, day={day} and filter={filters.getColumns()} (aggregation: {filters.getAggregationMethod()})")
     return vh.show_results(year, month, day, filter=filters)  # Pass the filter parameter
 
 @app.route("/data_summary")
