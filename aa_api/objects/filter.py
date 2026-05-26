@@ -63,28 +63,28 @@ class filter:
         print("Aggregation Attributes:", self.aggr_attr)
         print("Validation Result:", self.validate())
 
-    def isAggregation(self):
+    def is_aggregation(self):
         return self.aggr_method is not None and self.aggr_attr is not None and self.columns is not None
-    def isSelection(self):
+    def is_selection(self):
         return self.columns is not None
 
     def validate(self):
         global methods
-        # Implement validation logic for filters and aggregation parameters
+        # Validierungslogik für Filter und Aggregationsparameter
         r = True
         if not self.columns:
             r = False
         if self.aggr_attr and self.aggr_method and self.columns:
             if self.columns[:len(self.columns)-1] != self.aggr_attr: r = False
             if self.aggr_method not in self.methods: r = False
-        if not self.isAggregation() and not self.isSelection():
+        if not self.is_aggregation() and not self.is_selection():
             r = True
         return r
-    
-    def getColumns(self):
+
+    def get_columns(self):
         return self.columns
-    
-    def getAggregationColumns(self):
+
+    def get_aggregation_columns(self):
         return self.aggr_attr
-    def getAggregationMethod(self):
+    def get_aggregation_method(self):
         return self.aggr_method

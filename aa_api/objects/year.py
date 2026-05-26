@@ -12,21 +12,21 @@ class year:
         #print(entry)
         month_id = str(entry['tpep_pickup_datetime'])[5:7]
         #print(month_id)
-        month_obejct = self.getMonthById(month_id)
-        if month_obejct != None:    
+        month_obejct = self.get_month_by_id(month_id)
+        if month_obejct != None:
             month_obejct.add(entry)
         else:
             new_month = month(id=month_id)
             self.months.append(new_month)
             new_month.add(entry)
 
-    def toDataFrame(self):
+    def to_dataframe(self):
         data = []
         for m in self.months:
             for d in m.days:
                 for e in d.entries:
                     data.append(e)
-        # Directly use Python objects instead of building JSON manually
+        # Python-Objekte direkt verwenden
         try:
             self.dataframe = pd.json_normalize(data)
         except Exception as e:
@@ -34,28 +34,28 @@ class year:
             print("Beispiel-Datenpunkt:", data[0] if data else "Keine Daten")
             raise
         for m in self.months:
-            m.toDataFrame()
+            m.to_dataframe()
         return self.dataframe
 
 
-    def getAll(self, filter):
+    def get_all(self, filter):
         if not filter.validate(): return ("Invalid filter parameters", 400)
-        if filter.isAggregation():
+        if filter.is_aggregation():
             df = (
-                self.dataframe[filter.getColumns()]
-                .groupby(filter.getAggregationColumns(), as_index=False)
-                .agg(filter.getAggregationMethod())
+                self.dataframe[filter.get_columns()]
+                .groupby(filter.get_aggregation_columns(), as_index=False)
+                .agg(filter.get_aggregation_method())
             )
-            return df.to_json(orient="records")    
-        elif filter.isSelection():
-            return self.dataframe[filter.getColumns()].to_json(orient="records")
+            return df.to_json(orient="records")
+        elif filter.is_selection():
+            return self.dataframe[filter.get_columns()].to_json(orient="records")
         return self.dataframe.to_json(orient="records")
 
-    def getMonthById(self, id):
+    def get_month_by_id(self, id):
         for m in self.months:
             if m.id == id:
                 return m
         return None
-    
-    def getMonths(self):
+
+    def get_months(self):
         return self.months

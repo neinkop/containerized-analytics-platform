@@ -12,7 +12,7 @@ print("Starting Handler import")
 from handler.config_handler import config_handler
 config = config_handler()
 from handler.log_handler import log_handler
-log = log_handler(config.getLogLevel())
+log = log_handler(config.get_log_level())
 from handler.object_handler import object_handler
 from objects.filter import filter
 
@@ -75,7 +75,7 @@ def show_data(year, month, day):
     log.debug(f"Received request for data with year={year}, month={month}, day={day} and filter={request.args.get('filter')} (aggregation: {request.args.get('aggr')})")
     filters = filter(request.args.get('filter'), request.args.get('aggr'))
     if not filters.validate(): return ("Invalid filter parameters (main)", 400)
-    if not filters.isAggregation(): return ("No aggregation parameters provided", 400)
+    if not filters.is_aggregation(): return ("No aggregation parameters provided", 400)
     return md.handle(year, month, day, filters) 
     
 @app.route("/data_summary")

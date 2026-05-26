@@ -12,7 +12,7 @@ from handler.log_handler import log_handler
 from handler.data_handler import data_handler
 from handler.config_handler import config_handler
 config = config_handler()
-log = log_handler(config.getLogLevel())
+log = log_handler(config.get_log_level())
 log.info("Handler imported")
 from flask import Flask # type: ignore
 from flask import Response # type: ignore
@@ -26,7 +26,7 @@ log.info("Load Data")
 dh.load_data()
 
 log.info("MICE Data")
-dh.miceTipAmounts() # type: ignore
+dh.mice_tip_amounts() # type: ignore
 
 log.info("Data Clean-Up done")
 
@@ -36,36 +36,36 @@ app = Flask(__name__)
 @app.route("/raw_data")
 def raw_data():
     return Response(
-        dh.getCompleteRawDataframe().to_json(orient="index"),
+        dh.get_complete_raw_dataframe().to_json(orient="index"),
         mimetype="application/json"
     )
 
 @app.route("/reload_data")
 def reload_data():
     config = config_handler()
-    log = log_handler(config.getLogLevel())
+    log = log_handler(config.get_log_level())
     dh = data_handler(config)
     dh.load_data()
     dh.load_data()
-    dh.miceTipAmounts()
-    dh.miceTipAmounts()
+    dh.mice_tip_amounts()
+    dh.mice_tip_amounts()
     return 'done'
 
 @app.route("/miced_data")
 def miced_data():
 
     return Response(
-        dh.getMicedDataframe().to_json(orient="index"),
+        dh.get_miced_dataframe().to_json(orient="index"),
         mimetype="application/json"
     )
 
 @app.route("/files")
 def files():
-    return {"files": dh.getFiles()}
+    return {"files": dh.get_files()}
 
 @app.route("/columns")
 def columns():
-    return {"columns": dh.getCompleteRawDataframe().columns.tolist()}
+    return {"columns": dh.get_complete_raw_dataframe().columns.tolist()}
 
 @app.route("/")
 def about():

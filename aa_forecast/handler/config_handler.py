@@ -20,14 +20,14 @@ class config_handler:
             elif line.startswith("test_rowgroups="):
                 self.test_row_groups = int(line.split("=")[1].strip())
 
-    def getTestMode(self):
+    def get_test_mode(self):
         return self.test_mode
 
-    def getTestRowGroups(self):
+    def get_test_row_groups(self):
         return self.test_row_groups
 
-    def getTestRows(self):
+    def get_test_rows(self):
         return self.test_rows
 
-    def getLogLevel(self):
+    def get_log_level(self):
         return self.log_level

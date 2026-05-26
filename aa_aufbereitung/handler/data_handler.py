@@ -19,9 +19,9 @@ class data_handler:
 
     def load_data(self):
         self.data_list = open("/app/data/data.list", "r")
-        test = self.config.getTestMode() # type: ignore
-        test_rowgroups = self.config.getTestRowGroups() # type: ignore
-        test_rows = self.config.getTestRows() # type: ignore
+        test = self.config.get_test_mode() # type: ignore
+        test_rowgroups = self.config.get_test_row_groups() # type: ignore
+        test_rows = self.config.get_test_rows() # type: ignore
         
         for entry in self.data_list.readlines():
             if entry.startswith("#") or not entry.strip():
@@ -63,12 +63,12 @@ class data_handler:
             
             
             if "tpep_pickup_datetime" in df.columns:
-                # Convert from epoch (ms) to a readable datetime string
+                # Epochen-Zeitstempel (ms) in lesbares Format umwandeln
                 df["tpep_pickup_datetime"] = pd.to_datetime(
                     df["tpep_pickup_datetime"], unit="ms", errors="coerce"
                 ).dt.strftime("%Y_%m_%d_%H_%M_%S")
 
-                # Also convert dropoff timestamp to the same readable format
+                # Dropoff-Zeitstempel ebenso konvertieren
                 if "tpep_dropoff_datetime" in df.columns:
                     df["tpep_dropoff_datetime"] = pd.to_datetime(
                         df["tpep_dropoff_datetime"], unit="ms", errors="coerce"
@@ -93,29 +93,29 @@ class data_handler:
 
         df.index = df.index.astype(str)
         df.index.name = "row_id"
-        # Additional time-based features
+        # Zeitbasierte Features
         #df = self.raw_complete_df
         def cleanup(df):
-            # 1. Remove negative or zero fares
+            # 1. Negative und Null-Fahrpreise entfernen
             df = df[df['fare_amount'] > 0]
 
-            # 2. Remove extreme fare outliers (above 99.5th percentile)
+            # 2. Extreme Fahrpreis-Ausreißer entfernen (> 99,5. Perzentil)
             fare_cap = df['fare_amount'].quantile(0.995)
             df = df[df['fare_amount'] <= fare_cap]
 
-            # 3. Remove invalid trip distances
+            # 3. Ungültige Fahrtdistanzen entfernen
             df = df[(df['trip_distance'] > 0) & (df['trip_distance'] < 100)]
 
-            # 4. Remove invalid passenger counts
+            # 4. Ungültige Fahrgastzahlen entfernen
             df = df[(df['passenger_count'] >= 1) & (df['passenger_count'] <= 6)]
 
-            # 5. Remove rows with null coordinates
+            # 5. Zeilen mit fehlenden Koordinaten entfernen
             #df = df.dropna(subset=['pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude'])
-            # Wift auch KeyError
+            # Wirft KeyError
 
-            # 6. Remove trips where pickup == dropoff coordinates (ghost trips)
+            # 6. Geisterfahrten entfernen (Start == Zielkoordinaten)
             #df = df[~((df['pickup_longitude'] == df['dropoff_longitude']) & (df['pickup_latitude']  == df['dropoff_latitude']))]
-            # Wirft ein KeyError
+            # Wirft KeyError
             return df
         
         def feature(df):
@@ -161,10 +161,10 @@ class data_handler:
         print(df.head(2).to_json(orient="index"))
         self.raw_complete_df = df
 
-    def getCompleteRawDataframe(self):
+    def get_complete_raw_dataframe(self):
         return self.raw_complete_df
-    
-    def miceTipAmounts(self):
+
+    def mice_tip_amounts(self):
         """
         Soll das Trinkgeld (tip_amount) vorhersagen und imputieren für Taxifahrten die Bar bezahlt wurden (payment_type = 2). 
         --> Tip wird nur bei Kartenzahlung erhoben, daher ist das Trinkgeld bei Barzahlung immer 0.0
@@ -200,8 +200,8 @@ class data_handler:
         self.miced_df = df
         return self.miced_df
     
-    def getMicedDataframe(self):
+    def get_miced_dataframe(self):
         return self.miced_df
-            
-    def getFiles(self):
+
+    def get_files(self):
         return self.files

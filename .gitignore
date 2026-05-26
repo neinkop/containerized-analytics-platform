@@ -1,0 +1,9 @@
+data_ab_1/*.parquet
+data_ab_2/*.parquet
+data_ab_3/*.parquet
+data_ab_1/*.csv
+data_ab_2/*.csv
+data_ab_3/*.csv
+*/venv/*
+*/__pycache__/*
+aa_aufbereitung/handler/data_handler.py

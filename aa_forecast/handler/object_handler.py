@@ -39,10 +39,10 @@ class object_handler:
         reference_source = None
 
         for source in self.source_list:
-            columns_url = source.getColumnUrl()
+            columns_url = source.get_column_url()
             i = 0
             done = False
-            while not done and i < 3:  # Retry up to 3 times
+            while not done and i < 3:  # Max. 3 Versuche
                 columns = None
                 try:
                     with urllib.request.urlopen(columns_url, timeout=10) as response:
@@ -50,9 +50,9 @@ class object_handler:
                             columns = json.load(response)
                             done = True
                 except json.JSONDecodeError as e:
-                    raise ValueError(f"Source '{source.getConnectionString()}' returned invalid JSON for /columns: {e}")
+                    raise ValueError(f"Source '{source.get_connection_string()}' returned invalid JSON for /columns: {e}")
                 except urllib.error.URLError as e:
-                    print(f"Attempt {i+1}: Source '{source.getConnectionString()}' is unreachable: {e}")
+                    print(f"Attempt {i+1}: Source '{source.get_connection_string()}' is unreachable: {e}")
                 if done:
                     if reference_columns is None:
                         reference_columns = columns
@@ -60,19 +60,19 @@ class object_handler:
                     else:
                         if columns != reference_columns:
                             self.lh.error(
-                                f"Columns mismatch between sources '{reference_source.getConnectionString()}' and '{source.getConnectionString()}': "
+                                f"Columns mismatch between sources '{reference_source.get_connection_string()}' and '{source.get_connection_string()}': "
                                 f"{reference_columns} != {columns}"
                             )
                             self.source_list.remove(source)
                             #break
                 else:
                     i+=1
-                    time.sleep(7)  # Wait for 7 seconds before retrying
+                    time.sleep(7)  # 7 Sekunden warten
             if not done:
-                self.lh.error(f"Source '{source.getConnectionString()}' unreachable at {columns_url} after 3 attempts")
+                self.lh.error(f"Source '{source.get_connection_string()}' unreachable at {columns_url} after 3 attempts")
                 self.source_list.remove(source)
             else:
-                self.lh.debug(f"Source '{source.getConnectionString()}' is valid and has matching columns.")
+                self.lh.debug(f"Source '{source.get_connection_string()}' is valid and has matching columns.")
         if len(self.source_list) > 0:
             self.lh.info("All sources validated successfully with matching columns")
         else:
@@ -87,7 +87,7 @@ class object_handler:
         self.lh.info("Source validation successful. Proceeding with data loading.")
         response_data = []
         for source in self.source_list:
-            response = urllib.request.urlopen(source.getDataUrl())
+            response = urllib.request.urlopen(source.get_data_url())
             data = json.load(response)
             response_data.append(data)
         for response in response_data:
@@ -96,47 +96,46 @@ class object_handler:
                 year_id = str(data['tpep_pickup_datetime'])[:4]
                 month = str(data['tpep_pickup_datetime'])[5:7]
                 day = str(data['tpep_pickup_datetime'])[8:10]
-                if self.checkIfYearExists(year_id):
-                    year_object = (self.getYearById(year_id))
+                if self.check_if_year_exists(year_id):
+                    year_object = (self.get_year_by_id(year_id))
                     year_object.add(data)
                 else:
                     year_object = year(id=year_id)
                     self.years.append(year_object)
                     year_object.add(data)
         for y in self.years:
-            y.toDataFrame()
+            y.to_dataframe()
         self.lh.info("Data loading completed")
 
-    def checkIfYearExists(self, year):
+    def check_if_year_exists(self, year):
         for y in self.years:
             if y.id == year:
                 return True
         return False
-    
-    def getYearById(self, year):
+
+    def get_year_by_id(self, year):
         for y in self.years:
             if y.id == year:
                 return y
         return None
 
-    def getYears(self):
+    def get_years(self):
         return self.years
-    
+
     def merge_df(self):
         if self.df is None:
-            self.df = pd.concat([year.toDataFrame() for year in self.years], ignore_index=True)
+            self.df = pd.concat([year.to_dataframe() for year in self.years], ignore_index=True)
         return self.df
 
-    def getDataSummary(self):
+    def get_data_summary(self):
         years = []
         months = []
         days = []
-        for year in self.getYears():
+        for year in self.get_years():
             years.append(year.id)
-            for month in year.getMonths():
+            for month in year.get_months():
                 months.append(f"{year.id}-{month.id}")
-                for day in month.getDays():
+                for day in month.get_days():
                     days.append(f"{year.id}-{month.id}-{day.id}")
 
-        
         return {"years": sorted(years), "months": sorted(months), "days": sorted(days)}

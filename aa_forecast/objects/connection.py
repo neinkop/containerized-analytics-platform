@@ -9,21 +9,21 @@ class connection:
 
     def __str__(self):
         return f"{self.protocol}://{self.ip}:{self.port} (columns: {self.column_url}, data: {self.data_url})"
-    def getConnectionString(self):
+    def get_connection_string(self):
         return f"{self.protocol}://{self.ip}:{self.port}/"
-    def getDataUrl(self):
+    def get_data_url(self):
         return f"{self.protocol}://{self.ip}:{self.port}/{self.data_url}"
-    def getColumnUrl(self):
+    def get_column_url(self):
         return f"{self.protocol}://{self.ip}:{self.port}/{self.column_url}"
-    def getPort(self):
+    def get_port(self):
         return self.port
-    def getIp(self):
+    def get_ip(self):
         return self.ip
-    def getProtocol(self):
+    def get_protocol(self):
         return self.protocol
-    def getColumnEndpoint(self):
+    def get_column_endpoint(self):
         return self.column_url
-    def getDataEndpoint(self):
+    def get_data_endpoint(self):
         return self.data_url
-    def getId(self):
+    def get_id(self):
         return self.id

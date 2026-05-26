@@ -16,15 +16,15 @@ class modeler:
         if method == "count":
             families["poisson"] = sm.families.Poisson()
 
-            # Optional: Negative Binomial for overdispersion
+            # Optional: Negative Binomial bei Überdispersion
             families["negbin"] = sm.families.NegativeBinomial(alpha=1.0)
 
             return families
 
-        # MEAN / continuous → regression models
+        # MEAN / kontinuierlich → Regressionsmodelle
         families["gaussian"] = sm.families.Gaussian()
 
-        # Only for strictly positive data
+        # Nur für strikt positive Daten
         if (target_series > 0).all():
             families["gamma"] = sm.families.Gamma()
             families["inverse_gaussian"] = sm.families.InverseGaussian()
@@ -32,11 +32,11 @@ class modeler:
         return families
 
     def handle(self, year, month, day, filter):
-        method = filter.getAggregationMethod()
-        dimensions = filter.getAggregationColumns()
+        method = filter.get_aggregation_method()
+        dimensions = filter.get_aggregation_columns()
         dimensions_org = dimensions.copy()
         #print("Dimensions before processing:", dimensions)
-        target = filter.getColumns()[-1]
+        target = filter.get_columns()[-1]
         #print(dimensions)
         forecast = False
         if "forecast" in dimensions:
@@ -82,7 +82,7 @@ class modeler:
             #      → Ergebnis ist ein "typischer" Wert für diesen Zeitraum
             # ----------------------------------------------------------------
             df_filtered = df.copy()
-            active_dims = list(dimensions)  # eigene Kopie, dimensions bleibt für mean/andere Methoden erhalten
+            active_dims = list(dimensions)  # Kopie – dimensions bleibt für andere Methoden unverändert
 
             # Schritt 1 + 2: Filter + konstante Features entfernen
             if month and "pickup_month" in df_filtered.columns:
@@ -135,7 +135,7 @@ class modeler:
 
         df_agg = df_agg.replace([np.inf, -np.inf], np.nan).dropna()
 
-        # Log-Transformation only for mean (continuous targets)
+        # Log-Transformation nur für mean (kontinuierliche Zielvariablen)
         use_log = False
         if method == "mean":
             df_agg[target] = np.log1p(df_agg[target])
@@ -167,7 +167,7 @@ class modeler:
                 model = smf.glm(formula=formula, data=df_agg, family=family).fit()
                 preds = model.predict(current_pred_df)
 
-                # Predictions
+                # Vorhersagen
                 pred_out = current_pred_df.copy()
                 if use_log:
                     pred_out[target] = np.expm1(preds)
@@ -178,7 +178,7 @@ class modeler:
                 pred_out["model"] = name
                 dfs.append(pred_out)
 
-                # Summary
+                # Modellparameter
                 for param, value in model.params.items():
                     model_summaries.append({
                         "model": name,
@@ -208,7 +208,7 @@ class modeler:
         pred_out["model"] = "linear_regression"
         dfs.append(pred_out)
 
-        # OLS Summary
+        # OLS-Parameter
         for param, value in ols_model.params.items():
             model_summaries.append({
                 "model": "linear_regression",
@@ -255,7 +255,7 @@ class modeler:
         if month:
             df["month_sin"] = np.sin(2 * np.pi * int(month) / 12)
             df["month_cos"] = np.cos(2 * np.pi * int(month) / 12)
-            df["season"] = self.getSeason(int(month))
+            df["season"] = self.get_season(int(month))
         if day:
             import datetime
             date = datetime.datetime.strptime(f"{year}-{month:02}-{day:02}", '%Y-%m-%d').date()
@@ -284,12 +284,12 @@ class modeler:
                     df["is_rush_hour"] = df["dropoff_hour"].isin([7,8,9,16,17,18]).astype(int)
         
 
-        # 🔥 Fallback: ensure column exists for patsy formula
+        # Fallback: Spalte für Patsy-Formel sicherstellen
         if "is_rush_hour" not in df.columns:
             df["is_rush_hour"] = 0
         return df
     
-    def getSeason(self, month):
+    def get_season(self, month):
         """Helper function to determine season based on month. Because map is not working for some reason."""
         if month in [12, 1, 2]:
             return 0

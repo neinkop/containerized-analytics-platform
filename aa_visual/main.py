@@ -59,7 +59,7 @@ def fetch_available_dates(summary_url):
         if res.status_code == 200:
             data = res.json()
 
-            # 🔥 Basic validation
+            # Basisvalidierung
             if not isinstance(data, dict):
                 st.warning(f"⚠️ Ungültige Antwort von {summary_url}")
                 return None
@@ -125,7 +125,7 @@ def fetch_data(base_url, years, months, days, dimensions, metric, aggregation):
         selected_months = [m for m in months if m.startswith(year)]
         selected_days = [d for d in days if d.startswith(year)]
 
-        # 🔥 Skip years without matching selection
+        # Jahre ohne passende Auswahl überspringen
         # Wenn Tage gewählt → nur Jahre mit passenden Tagen berücksichtigen
         if days and not selected_days:
             continue
@@ -134,12 +134,12 @@ def fetch_data(base_url, years, months, days, dimensions, metric, aggregation):
         if not days and months and not selected_months:
             continue
 
-        # 🔥 PRIORITÄT:
+        # PRIORITÄT:
         # 1. Tage
         # 2. Monate
         # 3. Jahr
 
-        # 🔥 Fall 1: Tage (höchste Priorität)
+        # Fall 1: Tage (höchste Priorität)
         if selected_days:
             for day_str in selected_days:
                 y, m, d = day_str.split("-")
@@ -171,7 +171,7 @@ def fetch_data(base_url, years, months, days, dimensions, metric, aggregation):
                     st.write("REQUEST URL:", url, "| API:", base_url ,"| Status-Code:", res.status_code)
                     st.write(res.content, params)
 
-        # 🔥 Fall 2: Monate
+        # Fall 2: Monate
         elif selected_months:
             for month_str in selected_months:
                 y, m = month_str.split("-")
@@ -202,7 +202,7 @@ def fetch_data(base_url, years, months, days, dimensions, metric, aggregation):
                     st.write("REQUEST URL:", url, "| API:", base_url ,"| Status-Code:", res.status_code)
                     st.write(res.content, params)
 
-        # 🔥 Fall 3: nur Jahr
+        # Fall 3: nur Jahr
         else:
             url = f"{base_url}/{year}/"
 
@@ -234,7 +234,7 @@ def fetch_data(base_url, years, months, days, dimensions, metric, aggregation):
 
     df = pd.concat(all_data, ignore_index=True)
 
-    # 🔥 Model summaries sammeln (falls vorhanden)
+    # Modellzusammenfassungen sammeln (falls vorhanden)
     model_summaries = []
     if "_model_summary" in df.columns:
         for entry in df["_model_summary"].dropna():
@@ -244,7 +244,7 @@ def fetch_data(base_url, years, months, days, dimensions, metric, aggregation):
     else:
         model_summaries = []
 
-    # 🔥 Nur aggregieren, wenn ausgewählt
+    # Nur aggregieren, wenn ausgewählt
     if aggregation:
         group_cols = dimensions.copy()
 
@@ -275,7 +275,7 @@ st.title("Dashboard")
 
 
 st.sidebar.header("Einstellungen")
-# 🔄 Refresh Button (alle APIs neu laden)
+# Alle APIs neu laden
 if st.sidebar.button("🔄 Daten neu laden"):
     st.cache_data.clear()
     st.rerun()
@@ -292,7 +292,7 @@ if not selected_apis:
 summary_data_all = {"years": set(), "months": set(), "days": set()}
 # Neue Liste für erreichbare APIs
 reachable_apis = []
-# 🔥 Immer ALLE APIs für verfügbare Zeiträume abfragen (unabhängig von Auswahl)
+# Immer ALLE APIs für verfügbare Zeiträume abfragen (unabhängig von Auswahl)
 for api, cfg in API_CONFIGS.items():
     data = fetch_available_dates(cfg["summary_url"])
     if data is None:
@@ -382,7 +382,7 @@ dimensions = st.sidebar.multiselect(
     placeholder="Option auswählen"
 )
 
-# 🔥 Default-API Validierung und Reihenfolge
+# Default-API Validierung und Reihenfolge
 default_apis = [k for k, v in API_CONFIGS.items() if v.get("default")]
 if len(default_apis) != 1:
     st.error("❌ Es muss genau eine Default-API geben")
@@ -390,7 +390,7 @@ if len(default_apis) != 1:
 
 default_api = default_apis[0]
 
-# 🔥 Reihenfolge: bei forecast zuerst Nicht-Default
+# Reihenfolge: bei forecast zuerst Nicht-Default
 if "forecast" in dimensions:
     selected_apis = sorted(
         selected_apis,
@@ -467,7 +467,7 @@ for metric in metrics:
     if all_api_dfs:
         df_all = pd.concat(all_api_dfs, ignore_index=True)
 
-        # 🔥 forecast Kennzeichnung (nur wenn nicht vorhanden)
+        # forecast Kennzeichnung (nur wenn nicht vorhanden)
         if "forecast" not in df_all.columns:
             df_all["forecast"] = df_all["source_api"].apply(
                 lambda x: 0 if x == default_api else 1
@@ -476,7 +476,7 @@ for metric in metrics:
             # vorhandenen Wert behalten, optional API Info ergänzen
             df_all["forecast_api"] = df_all["source_api"]
 
-        # 🔥 Duplikate nach Datum + Dimensionen behandeln
+        # Duplikate nach Datum + Dimensionen behandeln
         time_cols = [c for c in ["year", "month", "day"] if c in df_all.columns]
         group_cols = dimensions.copy()
 
@@ -487,7 +487,7 @@ for metric in metrics:
         # source_api nicht Teil der Gruppierung
         group_cols = [c for c in group_cols if c != "source_api"]
 
-        # 🔥 Default priorisieren
+        # Default priorisieren
         df_all = df_all.sort_values(by=["forecast"])
 
         df_all = df_all.drop_duplicates(subset=group_cols, keep="first")
@@ -578,7 +578,7 @@ for metric, df in dfs.items():
             st.plotly_chart(fig, use_container_width=True)
 
         elif chart_type.startswith("Line"):
-            # 🔥 Zeitachse bauen (fortlaufend)
+            # Zeitachse bauen (fortlaufend)
             time_cols = []
             if {"year", "month", "day"}.issubset(df.columns):
                 df["date"] = pd.to_datetime(df[["year", "month", "day"]])
@@ -602,11 +602,11 @@ for metric, df in dfs.items():
 
             df = df.sort_values(time_col)
 
-            # 🔥 zusätzliche Dimensionen → mehrere Linien
+            # zusätzliche Dimensionen → mehrere Linien
             other_dims = [d for d in dimensions if d in df.columns and d not in time_cols]
 
             if other_dims:
-                # 🔥 mehrere Dimensionen kombinieren (z.B. VendorID | payment_type)
+                # mehrere Dimensionen kombinieren (z.B. VendorID | payment_type)
                 if len(other_dims) > 1:
                     df["combined_dim"] = df[other_dims].astype(str).agg(" | ".join, axis=1)
                     color_dim = "combined_dim"
@@ -671,13 +671,13 @@ for metric, df in dfs.items():
 
         summary_df = pd.DataFrame(all_model_summaries)
 
-        # 🔥 Nur eine Zeile pro Modell (Kennzahlen)
+        # Nur eine Zeile pro Modell (Kennzahlen)
         metric_cols = ["model", "aic", "nobs", "rsquared", "rsquared_adj"]
         metric_cols = [c for c in metric_cols if c in summary_df.columns]
 
         model_metrics_df = summary_df[metric_cols].drop_duplicates(subset=["model"])
 
-        # 🔥 Sortierung nach AIC (kleiner = besser)
+        # Sortierung nach AIC (kleiner = besser)
         if "aic" in model_metrics_df.columns:
             model_metrics_df = model_metrics_df.sort_values("aic")
 
