@@ -35,7 +35,7 @@ class data_handler:
                 chunks = []
 
                 if test:
-                    sample_size = 0.25  # Zeilen zufällig auswählen
+                    sample_size = 0.15  # Zeilen zufällig auswählen
                     for chunk in pd.read_csv(path,chunksize=100_000,dtype={"store_and_fwd_flag": "string"},skiprows=lambda i: i > 0 and random.random() > sample_size):
                         chunks.append(chunk)
                 else:
