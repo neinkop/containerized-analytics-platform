@@ -253,6 +253,14 @@ class modeler:
         if "store_and_fwd_flag" in attr and "store_and_fwd_flag" in self.df.columns:
             dummy_data["store_and_fwd_flag"] = list(df_agg["store_and_fwd_flag"].dropna().unique())
 
+        if "weekday" in attr:
+            if day and month and year:
+                import datetime
+                date = datetime.datetime.strptime(f"{year}-{int(month):02}-{int(day):02}", '%Y-%m-%d').date()
+                dummy_data["weekday"] = [date.weekday()]
+            else:
+                dummy_data["weekday"] = list(range(0, 7))
+
         if "pickup_year" in attr:
             dummy_data["pickup_year"] = [2026]
 
