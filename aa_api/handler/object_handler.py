@@ -85,8 +85,12 @@ class object_handler:
         self.lh.info("Source validation successful. Proceeding with data loading.")
         response_data = []
         for source in self.source_list:
-            with urllib.request.urlopen(source.getDataUrl(), timeout=30) as response:
-                raw = response.read().decode("utf-8")
+            try:
+                with urllib.request.urlopen(source.getDataUrl(), timeout=60) as response:
+                    raw = response.read().decode("utf-8")
+            except http.client.RemoteDisconnected as e:
+                self.lh.error(f"RemoteDisconnected error while accessing {source.getDataUrl()}: {e}")
+                continue
 
             print("Lade:", source.getDataUrl())
             print("Response Länge:", len(raw))
