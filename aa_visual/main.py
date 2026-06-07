@@ -21,8 +21,8 @@ API_CONFIGS = {
         "default": True
     },
     "aa_api_forecast": {
-        "base_url": "http://aa_forecast:8080/data",
-        "summary_url": "http://aa_forecast:8080/data_summary",
+        "base_url": "http://aa_forecast:9000/data",
+        "summary_url": "http://aa_forecast:9000/data_summary",
         "default": False
     }
 }
