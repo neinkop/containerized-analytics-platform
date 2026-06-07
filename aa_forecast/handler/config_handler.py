@@ -1,8 +1,8 @@
 class config_handler:
     
     def __init__(self):
-        #file = open("/app/data/config", "r")
-        file = open("../data_forecast/config", "r")
+        file = open("/app/data/config", "r")
+        #file = open("../data_forecast/config", "r")
         """Expected config format:
             log_level=DEBUG
             #DEBUG;INFO;ERROR;NONE
