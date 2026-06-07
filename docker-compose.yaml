@@ -103,7 +103,7 @@ services:
      depends_on:
        - aa_api
      ports:
-       - "8100:8100"
+       - "8501:8100"
      volumes:
        - ./data_visual:/app/data
      network_mode: "host"
