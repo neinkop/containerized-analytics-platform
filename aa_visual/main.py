@@ -25,12 +25,12 @@ API_CONFIGS = {
         "summary_url": "http://127.0.0.1:9000/data_summary",
         "default": False
     }
-    # ,
-    # "aa_api_forecast_docker": {
-    #     "base_url": "http://host.docker.internal:9000/data",
-    #     "summary_url": "http://host.docker.internal:9000/data_summary",
-    #     "default": False
-    # }
+    ,
+    "aa_api_forecast_docker": {
+        "base_url": "http://host.docker.internal:9000/data",
+        "summary_url": "http://host.docker.internal:9000/data_summary",
+        "default": False
+    }
 }
 forecast_apis = [
     api_name
