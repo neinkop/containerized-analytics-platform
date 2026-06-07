@@ -16,19 +16,13 @@ import plotly.express as px # type: ignore
 # ============================================
 API_CONFIGS = {
     "aa_api_default": {
-        "base_url": "http://127.0.0.1:8090/data",
-        "summary_url": "http://127.0.0.1:8090/data_summary",
+        "base_url": "http://aa_api:8090/data",
+        "summary_url": "http://aa_api:8090/data_summary",
         "default": True
     },
-    "aa_api_forecast_local": {
-        "base_url": "http://127.0.0.1:8085/data",
-        "summary_url": "http://127.0.0.1:8085/data_summary",
-        "default": False
-    }
-    ,
-    "aa_api_forecast_docker": {
-        "base_url": "http://host.docker.internal:8085/data",
-        "summary_url": "http://host.docker.internal:8085/data_summary",
+    "aa_api_forecast": {
+        "base_url": "http://aa_forecast:8080/data",
+        "summary_url": "http://aa_forecast:8080/data_summary",
         "default": False
     }
 }
