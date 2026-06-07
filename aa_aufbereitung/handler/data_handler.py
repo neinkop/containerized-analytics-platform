@@ -37,7 +37,7 @@ class data_handler:
                 chunks = []
 
                 if test:
-                    sample_size = 0.08  # Zeilen zufällig auswählen
+                    sample_size = 0.05  # Zeilen zufällig auswählen
                     for chunk in pd.read_csv(path,chunksize=100_000,dtype={"store_and_fwd_flag": "string"},skiprows=lambda i: i > 0 and random.random() > sample_size):
                         chunks.append(chunk)
                 else:
@@ -158,7 +158,7 @@ class data_handler:
             df[f"{prefix}_hour"] = pd.to_datetime(df[col], format="%Y_%m_%d_%H_%M_%S").dt.hour
 
         #df.set_index("row_id", inplace=True)
-        print(df.head(2).to_json(orient="index"))
+        #print(df.head(2).to_json(orient="index"))
         self.raw_complete_df = df
 
     def get_complete_raw_dataframe(self):
