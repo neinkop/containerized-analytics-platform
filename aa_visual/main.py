@@ -21,14 +21,14 @@ API_CONFIGS = {
         "default": True
     },
     "aa_api_forecast_local": {
-        "base_url": "http://127.0.0.1:9000/data",
-        "summary_url": "http://127.0.0.1:9000/data_summary",
+        "base_url": "http://127.0.0.1:8085/data",
+        "summary_url": "http://127.0.0.1:8085/data_summary",
         "default": False
     }
     ,
     "aa_api_forecast_docker": {
-        "base_url": "http://host.docker.internal:9000/data",
-        "summary_url": "http://host.docker.internal:9000/data_summary",
+        "base_url": "http://host.docker.internal:8085/data",
+        "summary_url": "http://host.docker.internal:8085/data_summary",
         "default": False
     }
 }
