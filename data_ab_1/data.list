@@ -1,6 +1,8 @@
-/app/data/yellow_tripdata_2025-01.csv
-/app/data/yellow_tripdata_2025-03.csv
-/app/data/yellow_tripdata_2025-08.csv
-/app/data/yellow_tripdata_2025-09.csv
-/app/data/yellow_tripdata_2025-11.csv
-/app/data/yellow_tripdata_2025-12.csv
+/app/data/yellow_tripdata_2024-02.csv
+/app/data/yellow_tripdata_2024-04.csv
+/app/data/yellow_tripdata_2024-06.csv
+/app/data/yellow_tripdata_2024-08.csv
+#/app/data/yellow_tripdata_2024-09.csv
+/app/data/yellow_tripdata_2024-10.csv
+#/app/data/yellow_tripdata_2024-11.csv
+/app/data/yellow_tripdata_2024-12.csv
