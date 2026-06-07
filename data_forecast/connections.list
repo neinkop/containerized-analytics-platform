@@ -1,4 +1,4 @@
-#id;protocol;ip;port;column_url;data_url
+#id;protocol;ip;port;column_url;data_url|
 1;http;aa_aufbereitung_1;8080;columns;miced_data
 1;http;aa_aufbereitung_2;8080;columns;miced_data
 #1;http;127.0.0.1;8080;columns;miced_data
