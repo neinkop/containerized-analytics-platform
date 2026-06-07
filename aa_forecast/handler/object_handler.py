@@ -16,8 +16,8 @@ class object_handler:
 
     def load_sources(self):
         self.lh.info("Loading sources from connections.list")
-        #self.data_list = open("/app/data/connections.list", "r")
-        self.data_list = open("../data_forecast/connections.list", "r")
+        self.data_list = open("/app/data/connections.list", "r")
+        #self.data_list = open("../data_forecast/connections.list", "r")
         for path in self.data_list.readlines():
             if not path[0] == "#":
                 path = path.replace("\n", "")
