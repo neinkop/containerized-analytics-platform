@@ -3,3 +3,6 @@ waitress
 pandas
 requests
 statsmodels
+holidays
+scikit-learn
+pyarrow
