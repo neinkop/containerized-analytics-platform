@@ -46,8 +46,6 @@ def reload_data():
     log = log_handler(config.get_log_level())
     dh = data_handler(config)
     dh.load_data()
-    dh.load_data()
-    dh.mice_tip_amounts()
     dh.mice_tip_amounts()
     return 'done'
 

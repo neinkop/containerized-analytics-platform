@@ -270,7 +270,7 @@ st.title("Dashboard")
 
 st.sidebar.header("Einstellungen")
 # Alle APIs neu laden
-if st.sidebar.button("🔄 Daten neu laden"):
+if st.sidebar.button("Daten neu laden"):
     st.cache_data.clear()
     st.rerun()
 
@@ -415,7 +415,7 @@ if not output_mode:
 # VALIDIERUNG AUSWAHL
 # ============================================
 if (not years and not months and not days) or not metrics:
-    st.info("ℹ️ Bitte wählen Sie mindestens einen Zeitraum und eine Kennzahl aus.")
+    st.info("Bitte wählen Sie mindestens einen Zeitraum und eine Kennzahl aus.")
     st.stop()
 
 # ============================================

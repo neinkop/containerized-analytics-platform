@@ -81,12 +81,14 @@ def show_data(year, month, day):
 @app.route("/data_summary")
 def data_summary():
     return generate_dates([2026], [1])
+
 @app.route("/reload_data")
 def reload_data():
     oh.load_data()
     md = modeler(log, oh.merge_df())
     log.info("Modeler re-initialized with merged DataFrame - Amount of rows: " + str(len(md.df)))
     return "Data reloaded successfully"
+
 @app.route("/about")
 def about():
     return "About Page"
