@@ -32,6 +32,7 @@ log.info("Data Clean-Up done")
 
 log.info("Init Flask-Web-Server")
 app = Flask(__name__)
+print(dh.get_complete_raw_dataframe().isnull().sum())
 
 @app.route("/raw_data")
 def raw_data():
